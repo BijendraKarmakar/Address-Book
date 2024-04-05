@@ -1,5 +1,5 @@
 import models, requests, json
-from fastapi import FastAPI, Form, Depends
+from fastapi import FastAPI, Depends
 from database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -139,7 +139,7 @@ def delete_address(id: int, db: Session = Depends(get_db)):
         db.commit()
 
         return {
-            "msg": "Updated succesfully",
+            "msg": "Deleted succesfully",
             "status": 100
         }
 
@@ -174,9 +174,11 @@ def get_address_within_range(range: int, latitude: float, longitude: float, db: 
 
 
             # Checking if the api request is succesfully and returing a list of all the addresses
-            # which are within the range provided by user 
+            # which are within the range provided by user
 
-            if(json_data['status'] == "OK" and (json_data['rows'][0]['elements'][0]['distance']['value']/1000) < range):
+            api_data = json_data['rows'][0]['elements'][0]
+
+            if(json_data['status'] == "OK" and ('distance' in api_data) and (api_data['distance']['value']/1000) < range):
                 data_to_append = {}
                 data_to_append['city'] = db_city
                 data_to_append['latitude'] = db_latitude
